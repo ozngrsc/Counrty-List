@@ -1,0 +1,12 @@
+.form-control:focus {
+  border: 1px solid lightgray;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.selectButton:focus {
+  outline: none;
+  border: 1px solid lightgray;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
