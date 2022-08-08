@@ -1,50 +1,30 @@
-import React, { useEffect, useState } from "react";
-import axios from "../axios";
+import React from "react";
 
-function CountriesList({ searchText, selectType }) {
-  const [countries, setCountries] = useState([]);
-
-  useEffect(() => {
-    const data = async () => {
-      await axios
-        .get(`https://restcountries.com/v2/all`)
-        .then((response) => {
-          console.log("response", response);
-          setCountries(response.data);
-        })
-        .catch((error) => console.log(error));
+function CountriesList({ searchText, selectType, countries, searchObjects }) {
+  // eslint-disable-next-line no-extend-native
+  String.prototype.turkishToEnglish = function () {
+    var string = this;
+    var letters = {
+      i: "i",
+      ı: "i",
+      ş: "s",
+      ğ: "g",
+      ü: "u",
+      ö: "o",
+      ç: "c",
     };
-    data();
-  }, []);
-
-  const filteredCountries = countries.filter((country) => {
-    if (searchText === "") {
-      return countries;
-    } else if (
-      country.name &&
-      country.name.toLowerCase().includes(searchText.toLowerCase())
-    ) {
-      return country;
-    } else if (
-      country.capital &&
-      country.capital.toLowerCase().includes(searchText.toLowerCase())
-    ) {
-      return country;
-    } else if (
-      country.region &&
-      country.region.toLowerCase().includes(searchText.toLowerCase())
-    ) {
-      return country;
-    }
-    return false;
-  });
+    string = string.toLowerCase().replace(/(([iışğüöç]))/g, function (letter) {
+      return letters[letter];
+    });
+    return string;
+  };
 
   const filteredByCapital = countries.filter((country) => {
     if (searchText === "") {
       return countries;
     } else if (
       country.capital &&
-      country.capital.toLowerCase().includes(searchText.toLowerCase())
+      country.capital.turkishToEnglish().includes(searchText.turkishToEnglish())
     ) {
       return country;
     }
@@ -63,7 +43,7 @@ function CountriesList({ searchText, selectType }) {
           </tr>
         </thead>
         <tbody className="table-group-divider">
-          {(selectType == 0 ? filteredCountries : filteredByCapital).map(
+          {(selectType == 0 ? searchObjects : filteredByCapital).map(
             (country, index) => (
               <tr key={index}>
                 <th scope="row">{country.name}</th>

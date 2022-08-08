@@ -1,12 +1,43 @@
-import React, { useState } from "react";
+import axios from "../axios";
+import React, { useEffect, useState } from "react";
 import CountriesList from "./CountriesList";
 
 function Countries() {
   const [searchText, setSearchText] = useState("");
   const [selectType, setSelectType] = useState(0);
+  const [countries, setCountries] = useState([]);
+  const [searchObjects, setSearchObjects] = useState([]);
+
+  useEffect(() => {
+    const data = async () => {
+      await axios
+        .get(`https://restcountries.com/v2/all`)
+        .then((response) => {
+          setCountries(response.data);
+          setSearchObjects(response.data);
+        })
+        .catch((error) => console.log(error));
+    };
+    data();
+  }, []);
 
   const optionChange = (e) => {
     setSelectType(e.target.value);
+  };
+
+  const escapeRegExp = (value) => {
+    return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+  };
+
+  const requestSearch = (searchValue) => {
+    setSearchText(searchValue);
+    const searchRegex = new RegExp(escapeRegExp(searchText), "i");
+    const filteredRows = countries.filter((country) => {
+      return Object.keys(country).some((field) => {
+        return searchRegex.test(country[field].toString());
+      });
+    });
+    setSearchObjects(filteredRows);
   };
 
   return (
@@ -31,11 +62,16 @@ function Countries() {
             }
             aria-label="Search"
             aria-describedby="button-addon2"
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(event) => requestSearch(event.target.value)}
           />
         </div>
       </div>
-      <CountriesList searchText={searchText} selectType={selectType} />
+      <CountriesList
+        searchText={searchText}
+        selectType={selectType}
+        countries={countries}
+        searchObjects={searchObjects}
+      />
     </div>
   );
 }
